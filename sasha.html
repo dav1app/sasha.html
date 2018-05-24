@@ -1,0 +1,212 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<style>
+	body,html{display:flex;align-items:center;justify-content:center;height:100%;font-family:sans-serif}.box{background-color:#ccc;text-align:center;margin:4px;padding:30px}input[type="button"]{margin:4px}
+</style>
+	<script>
+		var DATA_STRING_HEX = '';
+		var DATA_IV = '';
+		var DATA_TYPE = '';
+	</script>
+
+
+
+</head>
+
+<body>
+	<div class="box">
+		<h1>( ͡° ͜ʖ ͡°)</h1>
+		<h2>New file</h2>
+		<div>
+			<p>Set password for new encripted file:</p>
+			<input id="password-new" type="password"></div>
+			<p>Than select the files:</p>
+			<input type="file" id="fileRead" onChange="sashaIn(this);" multiple>
+		</div>
+	</div>
+	<div id="thisData" class="box">
+		<h1>( ͡° ͜ʖ ͡°)</h1>
+		<h2>Open this file</h2>
+		<div>
+			<p>Password:</p>
+			<input id="password-file" type="password">
+		</div>
+		<input type="button" onClick="sashaOut()" value="View">
+	</div>
+
+<script>
+//Sasha.JS 0.1
+//Description: Pequeno "programa" para encriptar arquivos e exportalos para HTML, com decodificador embutido.
+
+'use strict';
+
+
+//Compatibility test
+if (!window.File && !window.FileReader && !window.FileList && !window.Blob) {
+	console.log('Erro: Your browser does not suport Sasha.js');
+}
+
+if(DATA_STRING_HEX==''){
+	document.getElementById('thisData').hidden = true
+} else {
+	document.getElementById('thisData').hidden = false
+}
+
+/*Main Functions */
+const sashaIn = (element) => {
+	Promise.resolve(getFile(element))
+	.then(encriptFile)
+	.then(createVaultFile)
+	.then(downloadVaultFile)
+}
+
+
+const sashaOut = () => {
+	Promise.resolve({data: window.DATA_STRING_HEX, iv: window.DATA_IV, type: window.DATA_TYPE})
+	.then(decriptFile)
+	.then(downloadFile)
+	.catch(e => {console.log(e)})
+}
+
+
+/*Greater functions */
+const getFile = (element) => {
+	return new Promise((resolve, reject) => {
+		let fr = new FileReader()
+		fr.onloadend = () => {
+			console.log(fr)
+			resolve({filedata: fr.result, type: element.files[0].type})
+		}
+		fr.readAsArrayBuffer(element.files[0])
+	})
+}
+
+const encriptFile = async (file) => {
+	const password =        document.getElementById('password-new').value;
+	const iv =              util.getRandomBytes(12);
+	const alg =             {name: 'AES-GCM', iv: iv};
+	const passwordHash =    await util.sha256(util.textEncoder(password));
+	const key =             await util.importKey('raw', passwordHash, alg, false, ['encrypt']);
+	const encriptedData =   await util.encrypt(alg, key, file.filedata);
+
+	return { data: util.buf2hex(encriptedData), iv: util.buf2hex(iv), type: file.type} 
+}
+
+const decriptFile = async (data) => {
+	console.log(data)
+	const password =        document.getElementById('password-file').value;
+	const alg =             {name: 'AES-GCM', iv: util.hex2buf(data.iv)};
+	const passwordHash =    await util.sha256(util.textEncoder(password));
+	const key =             await util.importKey('raw', passwordHash, alg, false, ['decrypt']);
+	const alter_data   =    util.hex2buf(data.data)
+	const decryptedData =   await util.decrypt(alg, key, alter_data);
+
+	return decryptedData
+}
+
+
+const createVaultFile = (encriptedData) => {
+	console.log(encriptedData.iv)
+
+	let vault = document.getElementsByTagName('html')[0].innerHTML
+	let vaultWithData = vault
+	.replace(/var DATA_STRING_HEX = '.*'/, `var DATA_STRING_HEX = '${encriptedData.data}'` )
+	.replace(/var DATA_IV = '.*'/, `var DATA_IV = '${encriptedData.iv}'`)
+	.replace(/var DATA_TYPE = '.*'/, `var DATA_TYPE = '${encriptedData.type}'`)
+
+	return vaultWithData
+}
+
+
+const downloadVaultFile = (data) =>{
+	var elem = window.document.createElement('a');
+	elem.href = 'data:/html;charset=utf-8,' + encodeURIComponent(data);
+	elem.download = 'EncryptedFile.html'; 
+	document.body.appendChild(elem); 
+	elem.click(); 
+	document.body.removeChild(elem); 
+}
+
+const downloadFile = (decryptedData) => {
+	console.log('downloading file')
+	var elem = window.document.createElement('a');
+	let blob = new Blob( [decryptedData], { type: window.DATA_TYPE });
+
+	elem.href = window.URL.createObjectURL(blob);
+
+	document.body.appendChild(elem); 
+	elem.click(); 
+	document.body.removeChild(elem); 
+}
+
+/*Utility functions*/
+
+var util = {}
+
+util.getRandomBytes = (bytes) => {
+	return crypto.getRandomValues(new Uint8Array(bytes));
+}
+
+util.sha256 = async (data) => {
+	var hash = await crypto.subtle.digest({name:"SHA-256"}, data)
+	var result = hash
+
+	return result
+}
+
+util.importKey = async(type, key, algo , isExtractable, applications) => {
+	return await crypto.subtle.importKey(type, key, algo , isExtractable, applications)
+}
+
+util.encrypt = async (algo, password , data) => {
+	return await crypto.subtle.encrypt(algo, password, data)
+}
+
+util.decrypt = async (algo, password , data) => {
+	return await crypto.subtle.decrypt(algo, password, data)
+}
+
+util.textEncoder = (string) => {
+	return new TextEncoder("utf-8").encode(string)
+}
+
+util.textDecoder = (ArrayBuffer) => {
+	return new TextDecoder("utf-8").decode(ArrayBuffer)
+}
+
+util.buf2hex = (arrayBuffer) => {
+	if (typeof arrayBuffer !== 'object' || arrayBuffer === null || typeof arrayBuffer.byteLength !== 'number') {
+		throw new TypeError('Expected input to be an ArrayBuffer')
+	}
+
+	var view = new Uint8Array(arrayBuffer)
+	var result = ''
+	var value
+
+	for (var i = 0; i < view.length; i++) {
+		value = view[i].toString(16)
+		result += (value.length === 1 ? '0' + value : value)
+	}
+
+	return result
+}
+
+util.hex2buf = (hex) => {
+	if (typeof hex !== 'string') {
+		console.log(hex)
+		throw new TypeError('Expected input to be a string')
+	}
+	if ((hex.length % 2) !== 0) {
+		throw new RangeError('Expected string to be an even number of characters')
+	}
+	var view = new Uint8Array(hex.length / 2)
+	for (var i = 0; i < hex.length; i += 2) {
+		view[i / 2] = parseInt(hex.substring(i, i + 2), 16)
+	}
+	return view.buffer
+}
+</script>
+</body>
+
+</html>
