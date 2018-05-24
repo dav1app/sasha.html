@@ -20,16 +20,16 @@ Try opening the HTML file that we downloaded and you are going to see 2 differen
 ## What do we need to improve?
 - Basically everything. I coded it in only one night. I am not 100% satisfied with the code.
 - The files are getting twice their size due to HEX saving. We should change it to encode it better. The ideal size is filesize + sasha.html minified.
-- There is no error when we type the wrong password.
 - It is not minified yet (6kb). It should be, but we need to be a little careful because the file is auto-replicant. 
 - We need to check if the files opened in the browser are stored somewhere on the computer. Understanding how the browser works with this files is desirable.
 - I am not sure if the AES-GCM with SHA-256 is secure enought and this files are sensible to brute force attacks.
 - Encripting multiple files is a pain in the arrrs.
 - We should have a better testing for browser compatibility.
 - Optimizing buf2hex and hex2buf functions.
+- More consistent filesize limitations.
 
-## Is that a filesize limit?
-So, nice question. My research results are inconsistent. I am pretty sure that files arround 50mb can be encripted and decripted just fine in Chrome, Firefox and Opera (updated ones). It depends on the browser.
+## Is there a filesize limit?
+So, nice question. My research results are inconsistent. I am pretty sure that files arround 50mb can be encripted and decripted just fine in Chrome, Firefox and Opera (updated ones). As a final answer: it depends on the browser.
 
 ## How you can help? 
 - Please use the Issues.
