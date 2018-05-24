@@ -2,7 +2,7 @@
 The nicest way to encrypt some "very important images" ( ͡° ͜ʖ ͡°). Fast and safe like a handjob.
 
 ## What is it?
-It is a small auto-replicant HTML file that encrypts a file and creates another HTML file with the file inside. Each HTML can encrypt another files, so you don't need to install or access anything. No external libs are required. 
+It is a small auto-replicant HTML file that encrypts a file and creates another HTML file with the encrypted file inside. Each HTML can encrypt another files, so you don't need to install or access anything. You only need a browser. 
 
 ## Why?
 I believe that encryption should be available to everybody. I wrote this on HTML + CSS + JS purely because I believe this is the easiest way to make everybody understand what is going on.
@@ -18,9 +18,10 @@ Try opening the HTML file that we downloaded and you are going to see 2 differen
 ## What do we need to improve?
 - Basically everything. I coded it in only one night. I am not 100% satisfied with the code.
 - The files are getting twice their size due to HEX saving. We should change it to encode it better. The ideal size is filesize + sasha.html minified.
+- There is no error when we type the wrong password.
 - It is not minified yet (6kb). It should be, but we need to be a little careful because the file is auto-replicant. 
 - We need to check if the files opened in the browser are stored somewhere on the computer. Understanding how the browser works with this files is desirable.
-- I am not sure if the AES-CTR with SHA-256 is secure enought and this files are sensible to brute force attacks.
+- I am not sure if the AES-GCM with SHA-256 is secure enought and this files are sensible to brute force attacks.
 - Encripting multiple files is a pain in the arrrs.
 
 ## Is that a filesize limit?
