@@ -1,7 +1,7 @@
 # sasha.html
 The nicest way to encrypt some "very important images" ( ͡° ͜ʖ ͡°). Fast and safe like a handjob.
 
-![alt text](https://github.com/davimello28/sasha.html/printscreen.png)
+![alt text](https://github.com/davimello28/sasha.html/blob/master/printscreen.png)
 
 ## What is it?
 It is a small auto-replicant HTML file that encrypts a file and creates another HTML file with the encrypted file inside. Each HTML can encrypt another files, so you don't need to install or access anything. You only need a browser. 
